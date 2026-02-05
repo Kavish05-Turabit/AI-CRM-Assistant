@@ -1,7 +1,7 @@
 import streamlit as st
-from ai_core.setup import GeminiAssistant
+from ai_core.agent import GeminiAssistant
 
-st.title("AI CRM Assistant")
+st.title("AI Assistant")
 st.set_page_config(layout="centered",page_title="AI CRM Assistant")
 
 
@@ -9,10 +9,13 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
+    with st.chat_message(message["role"],width="content"):
         st.markdown(message["content"])
 
-llm = GeminiAssistant(api_key="AIzaSyDt0hh5ZaaaTTG6S9yhlyxBi0phrti-xSM")
+if "agent" not in st.session_state:
+    st.session_state["agent"] = GeminiAssistant(api_key="AIzaSyDdHKYfOnQD9s9O-iMRPfqgNAfUFcwJ9bo")
+
+llm = st.session_state.agent
 
 if prompt := st.chat_input("Ask something..."):
 

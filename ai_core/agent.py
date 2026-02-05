@@ -1,17 +1,24 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, ToolMessage
-from ai_core import tools
+from ai_core import customer_tools
+from utils import helpers
 
 
 class GeminiAssistant:
-    model = "gemini-2.5-flash"
+    model = "gemini-2.5-flash-lite"
 
     llm_tools = [
-        tools.update_customer_data
+        customer_tools.update_customer_data,
+        customer_tools.get_all_customers,
+        customer_tools.search_customers,
+        customer_tools.create_new_customer
     ]
 
     tools_map = {
-        "update_customer_data": tools.update_customer_data
+        "update_customer_data": customer_tools.update_customer_data,
+        "search_customers": customer_tools.search_customers,
+        "get_all_customers": customer_tools.get_all_customers,
+        "create_new_customer": customer_tools.create_new_customer
     }
 
     def __init__(self, api_key):
@@ -42,6 +49,8 @@ class GeminiAssistant:
 
             final_response = self.llm.invoke(self.message_history)
             self.message_history.append(final_response)
-            return final_response.content
+            msg = helpers.get_clean_message(final_response)
+            return msg
         else:
-            return ai_msg.content[0]["text"]
+            msg = helpers.get_clean_message(ai_msg)
+            return msg

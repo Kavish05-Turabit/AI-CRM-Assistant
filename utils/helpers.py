@@ -29,3 +29,16 @@ def check_user_login(email: str, password: str):
         st.error(f"❌ Too many requests. Server timed out!")
     except Exception as e:
         st.error(f"❌ Error! -> {e.__repr__()}")
+
+
+def get_clean_message(msg):
+    if isinstance(msg.content, str):
+        return msg.content
+
+    if isinstance(msg.content, list):
+        for line in msg.content:
+            if isinstance(line,dict) and line.get("type") == "text":
+                return line.get("text","")
+            if hasattr(line,"text"):
+                return line.text
+
