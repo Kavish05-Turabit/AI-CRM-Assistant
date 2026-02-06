@@ -1,24 +1,28 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, ToolMessage
-from ai_core import customer_tools
+from ai_core import customer_tools,ticket_tools
 from utils import helpers
 
 
 class GeminiAssistant:
-    model = "gemini-2.5-flash-lite"
+    model = "gemini-2.5-flash"
 
     llm_tools = [
         customer_tools.update_customer_data,
         customer_tools.get_all_customers,
         customer_tools.search_customers,
-        customer_tools.create_new_customer
+        customer_tools.create_new_customer, ticket_tools.create_new_ticket
     ]
 
     tools_map = {
+        # customer tools
         "update_customer_data": customer_tools.update_customer_data,
         "search_customers": customer_tools.search_customers,
         "get_all_customers": customer_tools.get_all_customers,
-        "create_new_customer": customer_tools.create_new_customer
+        "create_new_customer": customer_tools.create_new_customer,
+
+        # tickets tool
+        "create_new_ticket": ticket_tools.create_new_ticket
     }
 
     def __init__(self, api_key):
