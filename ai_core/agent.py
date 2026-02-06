@@ -1,12 +1,12 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, ToolMessage
-from ai_core import customer_tools,ticket_tools,employee_tools
+import streamlit as st
+from ai_core import customer_tools, ticket_tools, employee_tools
 from utils import helpers
 
 
 class GeminiAssistant:
-    model = "gemini-3-flash"
-
     llm_tools = [
         customer_tools.update_customer_data, ticket_tools.update_ticket, employee_tools.update_employee,
         customer_tools.get_all_customers, ticket_tools.get_all_tickets, employee_tools.get_all_employees,
@@ -34,12 +34,18 @@ class GeminiAssistant:
         "update_employee": employee_tools.update_employee
     }
 
-    def __init__(self, api_key):
-        self.api_key = api_key
-        self.llm = ChatGoogleGenerativeAI(
-            model=self.model,
-            api_key=self.api_key
-        ).bind_tools(self.llm_tools)
+    def __init__(self, model="gemini"):
+        if model == "groq":
+            self.llm = ChatGroq(
+                model_name="qwen/qwen3-32b",
+                temperature=0.7,
+                api_key=st.secrets["groq_secret"]
+            )
+        else:
+            self.llm = ChatGoogleGenerativeAI(
+                model="gemini-2.5-flash",
+                api_key=st.secrets["gemini_secret_1"]
+            ).bind_tools(self.llm_tools)
         self.message_history = []
 
     def send_message(self, prompt: str) -> str:
