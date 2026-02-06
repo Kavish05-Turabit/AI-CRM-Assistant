@@ -40,3 +40,19 @@ class TicketBase(BaseModel):
     ticket_type: Optional[TicketType] = Field(None,description="The type of ticket for available ones")
     priority: Optional[TicketPriority] = Field(None,description="The priority of the ticket based on urgency.")
     status: Optional[TicketStatus] = Field(None,description="The current status of the ticket.")
+
+
+class AccessLevel(str, Enum):
+    ADMIN = "admin"
+    AGENT = "agent"
+
+
+class EmployeeBase(BaseModel):
+    first_name: str = Field(..., min_length=1, description="First name of the employee")
+    last_name: str = Field(..., min_length=1, description="Last name of the employee")
+    email: EmailStr = Field(..., description="Official work email address")
+    phone: Optional[str] = Field(..., description="Contact phone number")
+    access_level: Optional[AccessLevel] = Field(None, description="Role or access level (e.g., AGENT, ADMIN)")
+    password_hash: str = Field(..., min_length=8, description="Initial password for the account (hashed or raw)")
+
+

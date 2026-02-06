@@ -1,17 +1,17 @@
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.messages import HumanMessage, ToolMessage
-from ai_core import customer_tools,ticket_tools
+from ai_core import customer_tools,ticket_tools,employee_tools
 from utils import helpers
 
 
 class GeminiAssistant:
-    model = "gemini-2.5-flash"
+    model = "gemini-3-flash"
 
     llm_tools = [
-        customer_tools.update_customer_data,
-        customer_tools.get_all_customers,
-        customer_tools.search_customers,
-        customer_tools.create_new_customer, ticket_tools.create_new_ticket
+        customer_tools.update_customer_data, ticket_tools.update_ticket, employee_tools.update_employee,
+        customer_tools.get_all_customers, ticket_tools.get_all_tickets, employee_tools.get_all_employees,
+        customer_tools.search_customers, ticket_tools.search_ticket, employee_tools.search_employee,
+        customer_tools.create_new_customer, ticket_tools.create_new_ticket, employee_tools.create_new_employee
     ]
 
     tools_map = {
@@ -22,7 +22,16 @@ class GeminiAssistant:
         "create_new_customer": customer_tools.create_new_customer,
 
         # tickets tool
-        "create_new_ticket": ticket_tools.create_new_ticket
+        "create_new_ticket": ticket_tools.create_new_ticket,
+        "get_all_tickets": ticket_tools.get_all_tickets,
+        "search_ticket": ticket_tools.search_ticket,
+        "update_ticket": ticket_tools.update_ticket,
+
+        # employee tools
+        "create_new_employee": employee_tools.create_new_employee,
+        "get_all_employees": employee_tools.get_all_employees,
+        "search_employee": employee_tools.search_employee,
+        "update_employee": employee_tools.update_employee
     }
 
     def __init__(self, api_key):
