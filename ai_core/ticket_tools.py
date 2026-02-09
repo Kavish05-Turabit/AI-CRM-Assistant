@@ -8,7 +8,7 @@ from utils import schemas as sch
 from utils.schemas import TicketBase
 
 
-@tool
+@tool(name_or_callable="get_all_tickets")
 def get_all_tickets():
     """ Fetch / Show all tickets. If user ask to see ticket data or all names of tickets fetch this"""
     res = requests.get(
@@ -20,7 +20,7 @@ def get_all_tickets():
            f"columns."
 
 
-@tool
+@tool(name_or_callable="search_ticket")
 def search_ticket(
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -66,7 +66,7 @@ def search_ticket(
     pass
 
 
-@tool(args_schema=TicketBase)  # type: ignore
+@tool(name_or_callable="create_new_ticket",args_schema=TicketBase)  # type: ignore
 def create_new_ticket(
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -111,7 +111,7 @@ def create_new_ticket(
                "Explain the user what went wrong and give them correction in really short summary"
 
 
-@tool
+@tool(name_or_callable="update_ticket")
 def update_ticket(
         ticket_id: int,
         title: Optional[str] = None,

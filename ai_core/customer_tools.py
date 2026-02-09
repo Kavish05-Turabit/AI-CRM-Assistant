@@ -8,7 +8,7 @@ from pydantic import EmailStr
 from utils.schemas import CustomerBase
 
 
-@tool
+@tool(name_or_callable="get_all_customers")
 def get_all_customers():
     """ Fetch / Show all customers. If user ask to see customer data or all names of customers fetch this"""
     res = requests.get(
@@ -20,7 +20,7 @@ def get_all_customers():
            f"columns."
 
 
-@tool
+@tool(name_or_callable="search_customers")
 def search_customers(
         customer_id: Optional[int] = None,
         first_name: Optional[str] = None,
@@ -55,7 +55,7 @@ def search_customers(
            f"{payload} and display it in tabular format without missing any columns."
 
 
-@tool(args_schema=CustomerBase)  # type: ignore
+@tool(name_or_callable="create_new_customer",args_schema=CustomerBase)  # type: ignore
 def create_new_customer(
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
@@ -93,7 +93,7 @@ def create_new_customer(
     return f"Successfully created a customer with id {res.json()['customer_id']}"
 
 
-@tool
+@tool(name_or_callable="update_customer_data")
 def update_customer_data(
         customer_id: Optional[int] = None,
         first_name: Optional[str] = None,

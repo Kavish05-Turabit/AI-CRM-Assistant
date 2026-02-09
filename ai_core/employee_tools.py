@@ -8,7 +8,7 @@ from utils import schemas as sch
 from utils.schemas import EmployeeBase
 
 
-@tool
+@tool(name_or_callable="get_all_employees")
 def get_all_employees():
     """ Fetch / Show all employees. If user ask to see employee data or all names of employees fetch this"""
     res = requests.get(
@@ -20,7 +20,7 @@ def get_all_employees():
            f"columns."
 
 
-@tool
+@tool(name_or_callable="search_employee")
 def search_employee(
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
@@ -60,7 +60,7 @@ def search_employee(
     pass
 
 
-@tool(args_schema=EmployeeBase)  # type: ignore
+@tool(name_or_callable="create_new_employee",args_schema=EmployeeBase)  # type: ignore
 def create_new_employee(
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
@@ -105,7 +105,7 @@ def create_new_employee(
                "Explain the user what went wrong and give them correction in really short summary"
 
 
-@tool
+@tool(name_or_callable="update_employee")
 def update_employee(
         employee_id: int,
         first_name: Optional[str] = None,
