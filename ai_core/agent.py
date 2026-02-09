@@ -1,6 +1,8 @@
+from typing import List
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, ToolMessage, SystemMessage
+from langchain_core.messages import HumanMessage, ToolMessage, SystemMessage, AnyMessage
 import streamlit as st
 from ai_core import customer_tools, ticket_tools, employee_tools
 from utils import helpers
@@ -72,12 +74,11 @@ class GeminiAssistant:
             ).bind_tools(self.llm_tools)
         else:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.5-flash-exp",
+                model="gemini-2.5-flash-lite",
                 api_key=st.secrets["gemini_secret_1"]
             ).bind_tools(self.llm_tools)
-        self.message_history = [
-            SystemMessage(content=self.system_prompt)
-        ]
+        self.message_history: List[AnyMessage] = []
+        self.message_history.append(SystemMessage(content=self.system_prompt))
 
     def send_message(self, prompt: str) -> str:
 
@@ -97,6 +98,7 @@ class GeminiAssistant:
                     )
             final_response = self.llm.invoke(self.message_history)
             self.message_history.append(final_response)
+            print(final_response)
             msg = helpers.get_clean_message(final_response)
             return msg
         else:
