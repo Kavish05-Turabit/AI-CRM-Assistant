@@ -22,6 +22,7 @@ def get_all_employees():
 
 @tool(name_or_callable="search_employee")
 def search_employee(
+        employee_id: Optional[int] = None,
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
         email: Optional[str] = None,
@@ -45,6 +46,16 @@ def search_employee(
             payload["phone"] = phone
         if access_level:
             payload["access_level"] = access_level
+
+        if employee_id:
+            res = requests.get(
+                f"http://127.0.0.1:8000/employees/{employee_id}",
+                headers=st.session_state.headers
+            )
+            data = res.json()
+            return f"The data for employee with id = {employee_id} is {data}. Display this employee in a nice format with " \
+                   f"all details visible  and assign color and emojis for any field you feel " \
+                   f"appropriate. Do not display this in tabular format "
 
         res = requests.get(
             "http://127.0.0.1:8000/employees/",
