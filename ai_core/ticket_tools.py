@@ -22,6 +22,7 @@ def get_all_tickets():
 
 @tool(name_or_callable="search_ticket")
 def search_ticket(
+        ticket_id: Optional[int] = None,
         title: Optional[str] = None,
         description: Optional[str] = None,
         customer_id: Optional[int] = None,
@@ -35,6 +36,7 @@ def search_ticket(
         Remember, call this only if user asks for a specific filter on tickets.
     """
     try:
+
         payload = {}
 
         if title:
@@ -52,6 +54,16 @@ def search_ticket(
         if status:
             payload["status"] = status
 
+        if ticket_id:
+            res = requests.get(
+                f"http://127.0.0.1:8000/tickets/{ticket_id}",
+                headers=st.session_state.headers
+            )
+            data = res.json()
+            return f"The data for ticket with id = {ticket_id} is {data}. Display this ticket in a nice format with " \
+                   f"all details visible  and assign color and emojis for type or status pr any other field you feel " \
+                   f"appropriate. Do not display this in tabular format "
+
         res = requests.get(
             "http://127.0.0.1:8000/tickets/",
             headers=st.session_state.headers
@@ -66,7 +78,7 @@ def search_ticket(
     pass
 
 
-@tool(name_or_callable="create_new_ticket",args_schema=TicketBase)  # type: ignore
+@tool(name_or_callable="create_new_ticket", args_schema=TicketBase)  # type: ignore
 def create_new_ticket(
         title: Optional[str] = None,
         description: Optional[str] = None,
@@ -98,7 +110,7 @@ def create_new_ticket(
             status=status
         )
 
-        payload = t.model_dump(mode='json',exclude_none=True)
+        payload = t.model_dump(mode='json', exclude_none=True)
         res = requests.post(
             "http://127.0.0.1:8000/tickets/",
             json=payload,

@@ -27,7 +27,8 @@ def search_customers(
         last_name: Optional[str] = None,
         company: Optional[str] = None,
         email: Optional[EmailStr] = None,
-        phone: Optional[str] = None
+        phone: Optional[str] = None,
+        created_by: Optional[int] = None
 ):
     """
         If the user asks to fetch or search for any customers data based on any of the above mentioned fields called this.
@@ -44,6 +45,18 @@ def search_customers(
         payload["email"] = email
     if phone:
         payload["phone"] = phone
+    if created_by:
+        payload["created_by"] = created_by
+
+    if customer_id:
+        res = requests.get(
+            f"http://127.0.0.1:8000/customers/{customer_id}",
+            headers=st.session_state.headers
+        )
+        data = res.json()
+        return f"The data for customer with id = {customer_id} is {data}. Display this customer in a nice format " \
+               f"with all details visible  and assign color and emojis for any field you feel " \
+               f"appropriate. Do not display this in tabular format "
 
     res = requests.get(
         "http://127.0.0.1:8000/customers/",
@@ -55,7 +68,7 @@ def search_customers(
            f"{payload} and display it in tabular format without missing any columns."
 
 
-@tool(name_or_callable="create_new_customer",args_schema=CustomerBase)  # type: ignore
+@tool(name_or_callable="create_new_customer", args_schema=CustomerBase)  # type: ignore
 def create_new_customer(
         first_name: Optional[str] = None,
         last_name: Optional[str] = None,
