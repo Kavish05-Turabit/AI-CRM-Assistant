@@ -3,6 +3,18 @@ import streamlit as st
 
 
 def check_user_login(email: str, password: str):
+    """
+    Send a login request to Internal CRM. If successful then accept the JWT token provided by it.
+
+    Save some needed info into streamlit session state:
+      - access_token
+      - current_emp
+      - current_emp_name
+      - access_level
+
+    :param email: Email of the employee
+    :param password: Password of the employee
+    """
     payload = {
         "username": email,
         "password": password
@@ -32,6 +44,12 @@ def check_user_login(email: str, password: str):
 
 
 def get_clean_message(msg):
+    """
+    Cleans the output given by LLM and extract the text response from it.
+
+    :param msg: Un-formatted message
+    :return: Clean Message
+    """
     if isinstance(msg.content, str):
         return msg.content
 
@@ -41,4 +59,3 @@ def get_clean_message(msg):
                 return line.get("text","")
             if hasattr(line,"text"):
                 return line.text
-

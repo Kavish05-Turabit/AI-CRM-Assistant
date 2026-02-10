@@ -5,9 +5,11 @@ from utils import chat_helpers as ch
 st.set_page_config(layout="wide", page_title="AI CRM Assistant")
 st.title("AI Assistant")
 
+# initialize agent for this chat session
 if "agent" not in st.session_state:
     st.session_state["agent"] = GeminiAssistant(model="gemini")
 
+# Fetch the new chat ID created for this session and mark it active
 if "live_chat_id" not in st.session_state:
     new_id = ch.get_chat_session()
     st.session_state["live_chat_id"] = new_id
@@ -54,6 +56,7 @@ with st.sidebar:
             st.session_state["active_view_id"] = s_id
             st.rerun()
 
+# Add messages for the current chat to session state
 if st.session_state["loaded_chat_id"] != active_id:
     raw_msgs = ch.get_chat_messages(active_id)
     st.session_state.messages = []
@@ -63,10 +66,12 @@ if st.session_state["loaded_chat_id"] != active_id:
 
     st.session_state["loaded_chat_id"] = active_id
 
+# Display all messages for this chat session
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+# Show the prompt input bar only if user is currently in active session
 if active_id == live_id:
     llm = st.session_state.agent
     if prompt := st.chat_input("Ask something..."):
@@ -79,9 +84,10 @@ if active_id == live_id:
         with st.chat_message("ai"):
             with st.spinner("Loading..."):
                 ai_response = llm.send_message(prompt)
-                st.markdown(ai_response)
+                if ai_response:
+                    st.markdown(ai_response)
 
-                st.session_state.messages.append({"role": "ai", "content": ai_response})
-                ch.send_message("ai", ai_response, active_id)
+                    st.session_state.messages.append({"role": "ai", "content": ai_response})
+                    ch.send_message("ai", ai_response, active_id)
 else:
     st.info("This is a past conversation. Chat is disabled.")

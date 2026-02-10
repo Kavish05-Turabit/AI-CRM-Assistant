@@ -80,10 +80,18 @@ class GeminiAssistant:
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
 
-    def send_message(self, prompt: str) -> str:
-
+    def send_message(self, prompt: str) -> [str,None]:
+        """
+        This functions is used to send messages to the selected LLM.
+        :param prompt: The user Query
+        :return: Response by the LLM for user query
+        """
         self.message_history.append(HumanMessage(content=prompt))
-        ai_msg = self.llm.invoke(self.message_history)
+        try:
+            ai_msg = self.llm.invoke(self.message_history)
+        except Exception as e:
+            st.error("Some Error occurred on API side. Please Change API model")
+            return None
         self.message_history.append(ai_msg)
         if ai_msg.tool_calls:
             for tool_call in ai_msg.tool_calls:
