@@ -74,7 +74,7 @@ class GeminiAssistant:
             ).bind_tools(self.llm_tools)
         else:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.5-flash-lite",
+                model="gemini-2.5-flash",
                 api_key=st.secrets["gemini_secret_1"]
             ).bind_tools(self.llm_tools)
         self.message_history: List[AnyMessage] = []

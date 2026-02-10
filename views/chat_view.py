@@ -2,38 +2,86 @@ import streamlit as st
 from ai_core.agent import GeminiAssistant
 from utils import chat_helpers as ch
 
+st.set_page_config(layout="wide", page_title="AI CRM Assistant")
 st.title("AI Assistant")
-st.set_page_config(layout="wide",page_title="AI CRM Assistant")
-
-
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-for message in st.session_state.messages:
-    with st.chat_message(message["role"],width="content"):
-        st.markdown(message["content"])
 
 if "agent" not in st.session_state:
     st.session_state["agent"] = GeminiAssistant(model="gemini")
 
-if "current_chat_id" not in st.session_state:
-    chat_id = ch.get_chat_session()
-    st.session_state["current_chat_id"] = chat_id
+if "live_chat_id" not in st.session_state:
+    new_id = ch.get_chat_session()
+    st.session_state["live_chat_id"] = new_id
+    st.session_state["active_view_id"] = new_id
 
-llm = st.session_state.agent
+if "messages" not in st.session_state:
+    st.session_state.messages = []
 
-if prompt := st.chat_input("Ask something..."):
+if "loaded_chat_id" not in st.session_state:
+    st.session_state["loaded_chat_id"] = None
 
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    ch.send_message("user",prompt)
-    with st.chat_message("user"):
-        st.markdown(prompt)
+live_id = st.session_state["live_chat_id"]
+active_id = st.session_state["active_view_id"]
 
-    with st.chat_message("ai"):
-        with st.spinner("Loading..."):
-            ai_response = llm.send_message(prompt)
-            st.markdown(ai_response)
-            st.session_state.messages.append({"role": "ai", "content": ai_response})
-            ch.send_message("ai",ai_response)
+with st.sidebar:
+    st.title("Chats")
 
+    is_live = (active_id == live_id)
+    btn_type = "primary" if is_live else "secondary"
 
+    if st.button("Current Chat", use_container_width=True, type=btn_type):
+        st.session_state["active_view_id"] = live_id
+        st.rerun()
+
+    st.divider()
+
+    sessions = ch.get_user_chats()
+    sessions.sort(key=lambda x: x['chat_id'], reverse=True)
+
+    for session in sessions:
+        s_id = session['chat_id']
+
+        if s_id == live_id:
+            continue
+
+        msgs = ch.get_chat_messages(s_id)
+        if len(msgs) < 2:
+            continue
+
+        s_title = session['chat_title'] or f"Chat {s_id}"
+        b_type = "primary" if active_id == s_id else "secondary"
+
+        if st.button(s_title, key=s_id, use_container_width=True, type=b_type):
+            st.session_state["active_view_id"] = s_id
+            st.rerun()
+
+if st.session_state["loaded_chat_id"] != active_id:
+    raw_msgs = ch.get_chat_messages(active_id)
+    st.session_state.messages = []
+    for m in raw_msgs:
+        role = "user" if m['sender_type'] == "user" else "ai"
+        st.session_state.messages.append({"role": role, "content": m['chat_text']})
+
+    st.session_state["loaded_chat_id"] = active_id
+
+for message in st.session_state.messages:
+    with st.chat_message(message["role"]):
+        st.markdown(message["content"])
+
+if active_id == live_id:
+    llm = st.session_state.agent
+    if prompt := st.chat_input("Ask something..."):
+        st.session_state.messages.append({"role": "user", "content": prompt})
+        with st.chat_message("user"):
+            st.markdown(prompt)
+
+        ch.send_message("user", prompt, active_id)
+
+        with st.chat_message("ai"):
+            with st.spinner("Loading..."):
+                ai_response = llm.send_message(prompt)
+                st.markdown(ai_response)
+
+                st.session_state.messages.append({"role": "ai", "content": ai_response})
+                ch.send_message("ai", ai_response, active_id)
+else:
+    st.info("This is a past conversation. Chat is disabled.")
