@@ -42,9 +42,9 @@ def search_customers(
     """
     Search for specific customers by filtering on attributes such as `name`, `email`, `phone`, or `id`.
 
-    **Triggers:**
-    - **Strictly use this tool** when the user provides specific search criteria (e.g., 'Find customer John', 'Who is client 101?', 'Search for the guy with email x@y.com').
-    - Do NOT use this for generic 'list all customers' requests (use `get_all_customers` instead).
+    **Triggers:** - **Strictly use this tool** when the user provides specific search criteria (e.g., 'Find customer
+    John', 'Who is client 101?', 'Search for the guy with email x@y.com'). - Do NOT use this for generic 'list all
+    customers' requests (use `get_all_customers` instead).
 
     **Supported Filters:**
     - Look for `first_name`, `last_name`, `email`, `phone_number`,`created_by` or `customer_id` in the user's request.
@@ -151,7 +151,7 @@ def update_customer_data(
 
     **Critical Requirements:** - You **MUST** extract and provide the `customer_id` to identify which record to
     update. - **Partial Updates:** Only include the specific fields the user wants to change (e.g., if they only say
-    "change email to x", just provide `email` and `customer_id`). Leave other fields as `None`. 
+    "change email to x", just provide `email` and `customer_id`). Leave other fields as `None`.
     """
     payload = {}
     if not customer_id:

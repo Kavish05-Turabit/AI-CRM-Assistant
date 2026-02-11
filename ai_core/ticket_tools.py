@@ -10,7 +10,16 @@ from utils.schemas import TicketBase
 
 @tool(name_or_callable="get_all_tickets")
 def get_all_tickets():
-    """ Fetch / Show all tickets. If user ask to see ticket data or all names of tickets fetch this"""
+    """
+    Retrieves a comprehensive list of all support tickets in the system.
+
+    Triggers:
+    - Use this when the user asks to 'show all', 'list', 'fetch', or 'get data' for **tickets**, **issues**, **cases**, or **requests**.
+    - Also use this if the user asks for a 'log', 'queue', or 'history' of all support items.
+
+    Scope:
+    - This tool returns the full dataset for every ticket, including `ticket_id`, `title` (name), `status`, `priority`, and `customer_id`.
+    """
     res = requests.get(
         "http://127.0.0.1:8000/tickets/",
         headers=st.session_state.headers
@@ -32,8 +41,19 @@ def search_ticket(
         status: Optional[sch.TicketStatus] = None
 ):
     """
-        If the user asks to fetch or search for any tickets data based on any of the above mentioned fields called this.
-        Remember, call this only if user asks for a specific filter on tickets.
+    Search for and retrieve support tickets based on specific criteria.
+
+    **Triggers:** - Call this when the user asks to 'find', 'search', 'get', or 'show' tickets matching specific
+    attributes. - Examples: "Find ticket #105", "Show me high priority tickets", "List tickets for customer 12",
+    "What is the status of the 'Login Error' ticket?".
+
+    **Behavior & Parameters:** - **Single Ticket:** If the user provides a specific ID (e.g., "Ticket 10"),
+    pass strictly `ticket_id`. - **Filtering:** Use other parameters (`status`, `priority`, `customer_id`,
+    etc.) to filter the list. - **Status/Priority/Type:** Map adjectives like "urgent" -> `priority='Critical'`,
+    "open" -> `status='Open'`, "bug" -> `ticket_type='Bug'`.
+
+    **Exclusion:** - Do NOT use this if the user asks for "all tickets" or a "full list" without any conditions (use
+    `get_all_tickets` instead).
     """
     try:
 
@@ -89,8 +109,13 @@ def create_new_ticket(
         status: Optional[sch.TicketStatus] = None
 ):
     """
-    When the user asks to create or add a new ticket , call this functions. If no description is provided then add
-    one yourself in string format
+    Creates a new support ticket in the system.
+
+    **Triggers:**
+    - Call this when the user asks to 'open', 'create', 'log', 'raise', or 'add' a new ticket or issue.
+
+    **Critical Requirements:** - **Description:** If the user does not provide a description, **YOU MUST** generate a
+    concise, professional description based on the title or context
     """
     try:
         missing = []
