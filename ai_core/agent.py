@@ -36,6 +36,11 @@ class GeminiAssistant:
         "update_employee": employee_tools.update_employee
     }
 
+    MODEL_OPTIONS = {
+        "Gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"],
+        "Groq": ["llama-3.3-70b-versatile", "qwen/qwen3-32b"]
+    }
+
     system_prompt = f"""
     You are the AI CRM Assistant, a specialized agent designed to help employees manage the company's internal database. Your primary role is to interact with the database using your provided tools to handle Customers, Support Tickets, and Employee records.
 
@@ -94,7 +99,7 @@ class GeminiAssistant:
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
 
-    def send_message(self, prompt: str) -> [str,None]:
+    def send_message(self, prompt: str) -> [str, None]:
         """
         This functions is used to send messages to the selected LLM.
         :param prompt: The user Query
@@ -127,3 +132,6 @@ class GeminiAssistant:
                 break
         msg = helpers.get_clean_message(ai_msg)
         return msg
+
+    def get_model_options(self):
+        return self.MODEL_OPTIONS

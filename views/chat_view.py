@@ -9,6 +9,11 @@ st.title("AI Assistant")
 if "agent" not in st.session_state:
     st.session_state["agent"] = GeminiAssistant(model="gemini")
 
+MODEL_OPTIONS = {
+    "Gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"],
+    "Groq": ["llama-3.3-70b-versatile", "qwen/qwen3-32b"]
+}
+
 # Fetch the new chat ID created for this session and mark it active
 if "live_chat_id" not in st.session_state:
     new_id = ch.get_chat_session()
@@ -25,6 +30,7 @@ live_id = st.session_state["live_chat_id"]
 active_id = st.session_state["active_view_id"]
 
 with st.sidebar:
+    st.title(st.session_state.current_emp_name)
     st.title("Chats")
 
     is_live = (active_id == live_id)
@@ -33,6 +39,31 @@ with st.sidebar:
     if st.button("Current Chat", use_container_width=True, type=btn_type):
         st.session_state["active_view_id"] = live_id
         st.rerun()
+
+    with st.popover("Configure", icon=":material/settings:",width="stretch"):
+        st.write("Configuration")
+        selected_provider = st.selectbox(
+            "AI Provider",
+            options=["Gemini", "Groq"],
+            index=0,
+            key="temp_provider_selection"
+        )
+        selected_model = st.selectbox(
+            "Model",
+            options=MODEL_OPTIONS[selected_provider],
+            index=0,
+            key="temp_model_selection",
+        )
+        api_key_input = st.text_input(
+            "API Key",
+            type="password",
+            placeholder=f"Enter {selected_provider} Key",
+            key="temp_api_key"
+        )
+        if st.button("Save"):
+            st.snow()
+
+        pass
 
     st.divider()
 
