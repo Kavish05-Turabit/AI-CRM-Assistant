@@ -39,10 +39,12 @@ def search_ticket(
         ticket_type: Optional[sch.TicketType] = None,
         priority: Optional[sch.TicketPriority] = None,
         status: Optional[sch.TicketStatus] = None,
-        created_by_id: Optional[int] = None
+        created_by_id: Optional[int] = None,
+        quantity: Optional[int] = None
 ):
     """
-    Search for and retrieve support tickets based on specific criteria.
+    Search for and retrieve support tickets based on specific criteria. If user asks for a specific
+    number of tickets and not all, use this.
 
     **Triggers:** - Call this when the user asks to 'find', 'search', 'get', or 'show' tickets matching specific
     attributes. - Examples: "Find ticket #105", "Show me high priority tickets", "List tickets for customer 12",
@@ -76,6 +78,8 @@ def search_ticket(
             payload["status"] = status
         if created_by_id:
             payload["created_by_id"] = created_by_id
+        if quantity:
+            payload["quantity"] = quantity
 
         if ticket_id:
             res = requests.get(
