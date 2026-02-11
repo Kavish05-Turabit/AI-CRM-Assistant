@@ -36,7 +36,7 @@ class GeminiAssistant:
         "update_employee": employee_tools.update_employee
     }
 
-    system_prompt = """
+    system_prompt = f"""
     You are the AI CRM Assistant, a specialized agent designed to help employees manage the company's internal database. Your primary role is to interact with the database using your provided tools to handle Customers, Support Tickets, and Employee records.
 
         ### 1. YOUR CAPABILITIES & TOOLS
@@ -62,7 +62,21 @@ class GeminiAssistant:
         * Be concise, professional, and helpful.
         * Do not be overly chatty. Get straight to the task.
         * "Agent" refers to the employee using this system. Address them respectfully.
-    """
+        
+        You are an autonomous agent. If a user requests an action that requires a specific ID (like customer_id) but 
+        only provides a name, you must automatically use your search tools to find that ID. Do not ask the user for 
+        information you can retrieve yourself. 
+        
+        The ID of current Employee is {st.session_state.current_emp}. If the user asks anything while using words like
+        me, mine, my , owned by me. etc than consider this id.
+        IT matches to assignee_id or created_by_id in tickets table based on the context given. Unless the user mentions,
+        it matches to assignee_id
+        IT matches to created_by field in customers table.
+        The access of current employee is {st.session_state.access_level}
+        
+        If the user mentions last or latest ticket, last customer or last employee, understand that he is mentioning the latest
+        created record of that type and do any aforementioned operations with that in mind.
+        """
 
     def __init__(self, model="gemini"):
         if model == "groq":
@@ -74,8 +88,8 @@ class GeminiAssistant:
             ).bind_tools(self.llm_tools)
         else:
             self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.5-flash-lite",
-                api_key=st.secrets["gemini_secret_2"]
+                model="gemini-2.5-flash",
+                api_key=st.secrets["gemini_secret_1"]
             ).bind_tools(self.llm_tools)
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
@@ -93,7 +107,7 @@ class GeminiAssistant:
             st.error("Some Error occurred on API side. Please Change API model")
             return None
         self.message_history.append(ai_msg)
-        if ai_msg.tool_calls:
+        while ai_msg.tool_calls:
             for tool_call in ai_msg.tool_calls:
                 name = tool_call["name"]
                 args = tool_call["args"]
@@ -104,11 +118,12 @@ class GeminiAssistant:
                     self.message_history.append(
                         ToolMessage(content=str(result), tool_call_id=tool_call["id"])
                     )
-            final_response = self.llm.invoke(self.message_history)
-            self.message_history.append(final_response)
-            print(final_response)
-            msg = helpers.get_clean_message(final_response)
-            return msg
-        else:
-            msg = helpers.get_clean_message(ai_msg)
-            return msg
+            try:
+                ai_msg = self.llm.invoke(self.message_history)
+                self.message_history.append(ai_msg)
+                print(ai_msg)
+            except Exception as e:
+                st.error(f"API Error in loop: {e}")
+                break
+        msg = helpers.get_clean_message(ai_msg)
+        return msg

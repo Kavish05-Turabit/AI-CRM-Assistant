@@ -38,7 +38,8 @@ def search_ticket(
         assignee_id: Optional[int] = None,
         ticket_type: Optional[sch.TicketType] = None,
         priority: Optional[sch.TicketPriority] = None,
-        status: Optional[sch.TicketStatus] = None
+        status: Optional[sch.TicketStatus] = None,
+        created_by_id: Optional[int] = None
 ):
     """
     Search for and retrieve support tickets based on specific criteria.
@@ -73,6 +74,8 @@ def search_ticket(
             payload["priority"] = priority
         if status:
             payload["status"] = status
+        if created_by_id:
+            payload["created_by_id"] = created_by_id
 
         if ticket_id:
             res = requests.get(
@@ -116,6 +119,10 @@ def create_new_ticket(
 
     **Critical Requirements:** - **Description:** If the user does not provide a description, **YOU MUST** generate a
     concise, professional description based on the title or context
+
+    **Critical Prerequisite (Chaining):** - This function **REQUIRES** a numeric `customer_id`. - If the user
+    provided a **name** (e.g., "Create a ticket for John"), you **MUST** first call `search_customers` to find John's
+    `customer_id`. - **DO NOT** hallucinate or guess the ID. If you don't have it, find it first.
     """
     try:
         missing = []

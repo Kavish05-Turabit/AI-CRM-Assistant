@@ -37,7 +37,7 @@ def search_customers(
         company: Optional[str] = None,
         email: Optional[EmailStr] = None,
         phone: Optional[str] = None,
-        created_by: Optional[int] = None
+        created_by: Optional[int] = None,
 ):
     """
     Search for specific customers by filtering on attributes such as `name`, `email`, `phone`, or `id`.
@@ -48,6 +48,10 @@ def search_customers(
 
     **Supported Filters:**
     - Look for `first_name`, `last_name`, `email`, `phone_number`,`created_by` or `customer_id` in the user's request.
+
+    **Return Value:** - Returns a list of matching customers with their `customer_id`. - **Usage:** Use this tool
+    FIRST to find a `customer_id` when the user only gives you a name (e.g., "John") but you need the ID for other
+    actions like creating tickets.
     """
     payload = {}
     if first_name:
