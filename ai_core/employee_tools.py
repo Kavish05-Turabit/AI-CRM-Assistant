@@ -14,6 +14,13 @@ def get_all_employees():
     Retrieves a comprehensive list of all employees from the organization's database. Use this tool when the user
     asks to 'show all employees', 'list everyone', 'get employee data', or specifically requests names, roles, IDs,
     or contact details of the staff. It provides a full roster of current personnel.
+
+    Return:
+    - DO not return all the employees at once. Give only 10 employees in tabular format and ask user if he wants
+    more (next 10). If you already have all employees in context fetch the next employees from there and do not
+    call this function again.
+    - Only return this fields in this same order in tabular format :- emp_id, firstname, lastname, access_level
+    - Use emojis wherever you see fit for displaying data inside table
     """
     res = requests.get(
         "http://127.0.0.1:8000/employees/",

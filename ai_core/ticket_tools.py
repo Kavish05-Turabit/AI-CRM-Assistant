@@ -17,16 +17,19 @@ def get_all_tickets():
     - Use this when the user asks to 'show all', 'list', 'fetch', or 'get data' for **tickets**, **issues**, **cases**, or **requests**.
     - Also use this if the user asks for a 'log', 'queue', or 'history' of all support items.
 
-    Scope:
-    - This tool returns the full dataset for every ticket, including `ticket_id`, `title` (name), `status`, `priority`, and `customer_id`.
+    Return:
+    - DO not return all the ticket at once. Give only 10 tickets in tabular format and ask user if he wants
+    more (next 10). If you already have all ticekts in context fetch the next tickets from there and do not
+    call this function again.
+    - Only return this fields in this same order in tabular format :- ticket_id , ticket_title, status, priority, type
+    - Use emojis wherever you see fit for displaying data inside table
     """
     res = requests.get(
         "http://127.0.0.1:8000/tickets/",
         headers=st.session_state.headers
     )
     data = res.json()
-    return f"This is the data for all tickets - {data}. Display this in a tabular format and do not miss any " \
-           f"columns."
+    return f"This is the data for all tickets - {data}."
 
 
 @tool(name_or_callable="search_ticket")

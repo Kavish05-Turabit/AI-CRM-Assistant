@@ -17,8 +17,12 @@ def get_all_customers():
     - Use this when the user asks to 'show all', 'list', 'fetch', or 'get data' for **customers** or **clients**.
     - Also use this if the user asks for a 'roster', 'directory', or 'names' of the entire customer base.
 
-    **Scope:**
-    - This tool returns the full dataset, including names, IDs, emails, and phone numbers for every customer in the system.
+    Return:
+    - DO not return all the customers at once. Give only 10 customers in tabular format and ask user if he wants
+    more (next 10). If you already have all customers in context fetch the next customers from there and do not
+    call this function again.
+    - Only return this fields in this same order in tabular format :- cust_id, firstname, lastname, email, created_by
+    - Use emojis wherever you see fit for displaying data inside table
     """
     res = requests.get(
         "http://127.0.0.1:8000/customers/",
