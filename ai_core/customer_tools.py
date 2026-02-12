@@ -10,7 +10,16 @@ from utils.schemas import CustomerBase
 
 @tool(name_or_callable="get_all_customers")
 def get_all_customers():
-    """ Fetch / Show all customers. If user ask to see customer data or all names of customers fetch this"""
+    """
+    Retrieves a comprehensive list of all registered customers.
+
+    **Triggers:**
+    - Use this when the user asks to 'show all', 'list', 'fetch', or 'get data' for **customers** or **clients**.
+    - Also use this if the user asks for a 'roster', 'directory', or 'names' of the entire customer base.
+
+    **Scope:**
+    - This tool returns the full dataset, including names, IDs, emails, and phone numbers for every customer in the system.
+    """
     res = requests.get(
         "http://127.0.0.1:8000/customers/",
         headers=st.session_state.headers
@@ -28,11 +37,21 @@ def search_customers(
         company: Optional[str] = None,
         email: Optional[EmailStr] = None,
         phone: Optional[str] = None,
-        created_by: Optional[int] = None
+        created_by: Optional[int] = None,
 ):
     """
-        If the user asks to fetch or search for any customers data based on any of the above mentioned fields called this.
-        Remember, call this only if user asks for a specific filter on customers.
+    Search for specific customers by filtering on attributes such as `name`, `email`, `phone`, or `id`.
+
+    **Triggers:** - **Strictly use this tool** when the user provides specific search criteria (e.g., 'Find customer
+    John', 'Who is client 101?', 'Search for the guy with email x@y.com'). - Do NOT use this for generic 'list all
+    customers' requests (use `get_all_customers` instead).
+
+    **Supported Filters:**
+    - Look for `first_name`, `last_name`, `email`, `phone_number`,`created_by` or `customer_id` in the user's request.
+
+    **Return Value:** - Returns a list of matching customers with their `customer_id`. - **Usage:** Use this tool
+    FIRST to find a `customer_id` when the user only gives you a name (e.g., "John") but you need the ID for other
+    actions like creating tickets.
     """
     payload = {}
     if first_name:
@@ -76,8 +95,21 @@ def create_new_customer(
         email: Optional[EmailStr] = None,
         phone: Optional[str] = None
 ):
-    """When the user asks to create or add a new customer , call this functions and check all the values are given to
-    it """
+    """
+    Creates a new customer account in the system.
+
+    **Triggers:**
+    - Call this when the user asks to 'add', 'create', 'register', or 'onboard' a new customer.
+
+    **Critical Requirements:**
+    - You **MUST** extract ALL of the following fields from the user's request:
+      1. `first_name`
+      2. `last_name`
+      3. `email`
+      4. `phone`
+      5. `password` (passed to password_hash)
+    - If ANY of these values are missing, **DO NOT** call this function. Instead, ask the user to provide the missing details.
+    """
     missing = []
     if not first_name:
         missing.append("first_name")
@@ -115,8 +147,15 @@ def update_customer_data(
         email: Optional[EmailStr] = None,
         phone: Optional[str] = None
 ):
-    """ Invoke this function if user wants to update or set value to an existing customer. user must
-        provide an customer_id to do so.
+    """
+    Updates the profile details of an existing customer.
+
+    **Triggers:**
+    - Call this when the user asks to 'update', 'modify', 'edit', 'change', or 'correct' a customer's information.
+
+    **Critical Requirements:** - You **MUST** extract and provide the `customer_id` to identify which record to
+    update. - **Partial Updates:** Only include the specific fields the user wants to change (e.g., if they only say
+    "change email to x", just provide `email` and `customer_id`). Leave other fields as `None`.
     """
     payload = {}
     if not customer_id:

@@ -10,7 +10,11 @@ from utils.schemas import EmployeeBase
 
 @tool(name_or_callable="get_all_employees")
 def get_all_employees():
-    """ Fetch / Show all employees. If user ask to see employee data or all names of employees fetch this"""
+    """
+    Retrieves a comprehensive list of all employees from the organization's database. Use this tool when the user
+    asks to 'show all employees', 'list everyone', 'get employee data', or specifically requests names, roles, IDs,
+    or contact details of the staff. It provides a full roster of current personnel.
+    """
     res = requests.get(
         "http://127.0.0.1:8000/employees/",
         headers=st.session_state.headers
@@ -30,8 +34,9 @@ def search_employee(
         access_level: Optional[sch.AccessLevel] = None
 ):
     """
-        If the user asks to fetch or search for any employees data based on any of the above mentioned fields called this.
-        Remember, call this only if user asks for a specific filter on employees.
+    Search for specific employees by filtering on attributes such as first_name, last_name, role, department, email,
+    or employee_id. Strictly use this tool when the user provides specific criteria (e.g., 'Find John', 'Who is the
+    manager?', 'Get details for employee 101'). Do NOT use this for generic 'list all employees' requests.
     """
     try:
         payload = {}
@@ -81,9 +86,18 @@ def create_new_employee(
         password_hash: Optional[str] = None
 ):
     """
-    When the user asks to create or add a new employee , call this functions. If no access_level is provided then add
-    one yourself as AGENT
+    Creates a new employee account in the system.
+
+    Use this tool when the user asks to 'add', 'create', 'register', or 'onboard' a new staff member.
+
+    **Parameters to Extract:**
+    - `first_name`, `last_name`, `email`, `phone`, and `password` (passed to password_hash).
+
+    **Critical Logic:**
+    - If the user provides a specific role/permission (e.g., 'Make them an Admin'), map it to `access_level`.
+    - **If NO access level is specified, you MUST default `access_level` to 'AGENT'.**
     """
+
     try:
         missing = []
         if not first_name: missing.append("first_name")
@@ -126,8 +140,15 @@ def update_employee(
         access_level: Optional[sch.AccessLevel] = None
 ):
     """
-    Invoke this function if user wants to update or set value to an existing employee. user must
-    provide an employee_id to do so. Also call this function when user asks to promote an employee.
+    Updates the details of an existing employee.
+
+    Triggers:
+    - Call this when the user asks to 'update', 'modify', 'edit', or 'change' an employee's information.
+    - ALSO call this when the user asks to **'promote'** or **'demote'** an employee (by changing their `access_level` or `role`).
+    - If promote then access level is admin and if demote then access level is agent
+    Critical Requirements:
+    - You MUST extract and provide the `employee_id` to identify which record to update.
+    - Only include the fields that need changing; leave others as None.
     """
     payload = {}
 
