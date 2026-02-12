@@ -84,20 +84,35 @@ class GeminiAssistant:
         """
 
     def __init__(self, model="gemini"):
-        if model == "groq":
-            self.llm = ChatGroq(
-                model_name="qwen/qwen3-32b",
-                # model_name="meta-llama/llama-prompt-guard-2-86m",
-                temperature=0.7,
-                api_key=st.secrets["groq_secret"]
-            ).bind_tools(self.llm_tools)
-        else:
-            self.llm = ChatGoogleGenerativeAI(
-                model="gemini-2.5-flash",
-                api_key=st.secrets["gemini_secret_3"]
-            ).bind_tools(self.llm_tools)
+        self.llm = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash",
+            api_key=st.secrets["gemini_secret_3"]
+        ).bind_tools(self.llm_tools)
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
+
+    def config_model(self, model, provider, api_key):
+        """
+        User can add their own api key for any of the supported model.
+        :param model: Any tool supported model
+        :param provider: ["Gemini","Groq"]
+        :param api_key: Secret key
+        :return:
+        """
+        try:
+            if provider == "Gemini":
+                self.llm = ChatGoogleGenerativeAI(
+                    model=model,
+                    api_key=api_key
+                ).bind_tools(self.llm_tools)
+            if provider == "Groq":
+                self.llm = ChatGroq(
+                    model=model,
+                    api_key=api_key,
+                    temperature=0.7
+                ).bind_tools(self.llm_tools)
+        except Exception as e:
+            st.error("Model unsupported! Please select appropriate model")
 
     def send_message(self, prompt: str) -> [str, None]:
         """
@@ -109,7 +124,7 @@ class GeminiAssistant:
         try:
             ai_msg = self.llm.invoke(self.message_history)
         except Exception as e:
-            st.error("Some Error occurred on API side. Please Change API model")
+            st.error(f"Some Error occurred on API side. Please Change API model -  {e}")
             return None
         self.message_history.append(ai_msg)
         while ai_msg.tool_calls:

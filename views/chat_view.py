@@ -61,9 +61,11 @@ with st.sidebar:
             key="temp_api_key"
         )
         if st.button("Save"):
-            st.snow()
-
-        pass
+            st.session_state.agent.config_model(
+                selected_model,
+                provider=selected_provider,
+                api_key=api_key_input
+            )
 
     st.divider()
 
