@@ -7,7 +7,7 @@ st.title("AI Assistant")
 
 # initialize agent for this chat session
 if "agent" not in st.session_state:
-    st.session_state["agent"] = GeminiAssistant(model="gemini")
+    st.session_state["agent"] = GeminiAssistant()
 
 MODEL_OPTIONS = {
     "Gemini": ["gemini-2.5-flash", "gemini-2.5-flash-lite", "gemini-3-flash"],
