@@ -2,7 +2,7 @@ from typing import List
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_groq import ChatGroq
-from langchain_core.messages import HumanMessage, ToolMessage, SystemMessage, AnyMessage
+from langchain_core.messages import HumanMessage, ToolMessage, SystemMessage, AnyMessage, AIMessage
 import streamlit as st
 from ai_core import customer_tools, ticket_tools, employee_tools, statistic_tools
 from utils import helpers
@@ -89,7 +89,7 @@ class GeminiAssistant:
 
     def __init__(self):
         self.llm = ChatGoogleGenerativeAI(
-            model="gemini-2.5-flash",
+            model="gemini-2.5-flash-lite",
             api_key=st.secrets["gemini_secret_4"]
         ).bind_tools(self.llm_tools)
         self.message_history: List[AnyMessage] = []
@@ -150,6 +150,9 @@ class GeminiAssistant:
                 st.error(f"API Error in loop: {e}")
                 break
         msg = helpers.get_clean_message(ai_msg)
+        if not msg:
+            msg = "Action completed successfully."
+            self.message_history.append(AIMessage(content=msg))
         return msg
 
     def get_model_options(self):

@@ -82,7 +82,7 @@ with st.sidebar:
         if len(msgs) < 2:
             continue
 
-        s_title = session['chat_title'] or f"Chat {s_id}"
+        s_title = session['init_time'] or f"Chat {s_id}"
         b_type = "primary" if active_id == s_id else "secondary"
 
         if st.button(s_title, key=s_id, use_container_width=True, type=b_type):

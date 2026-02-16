@@ -16,6 +16,7 @@ def get_all_tickets():
     Triggers:
     - Use this when the user asks to 'show all', 'list', 'fetch', or 'get data' for **tickets**, **issues**, **cases**, or **requests**.
     - Also use this if the user asks for a 'log', 'queue', or 'history' of all support items.
+    - Also use this if user asks for a count of total no of tickets based on any criteria such as assigned, ticket type, or status.
 
     Return:
     - DO not return all the ticket at once. Give only 10 tickets in tabular format and ask user if he wants
@@ -23,6 +24,7 @@ def get_all_tickets():
     call this function again.
     - Only return this fields in this same order in tabular format :- ticket_id , ticket_title, status, priority, type
     - Use emojis wherever you see fit for displaying data inside table
+    - When user asks for 'count' or 'total' tickets based on any criteria, only return the count in sentence and not all tickets.
     """
     res = requests.get(
         "http://127.0.0.1:8000/tickets/",
