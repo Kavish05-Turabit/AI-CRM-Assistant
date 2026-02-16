@@ -21,6 +21,8 @@ def show_individual_analysis(
 
     **CRITICAL INSTRUCTION FOR THE AI (HOW TO DISPLAY DATA):**
     Do NOT output the raw JSON. You must calculate and present a "Statistical Dashboard" using the returned data.
+    If the api says that no employee/customer can be found with the key they provided, inform the user that no
+    employee/customer with that id exist.
 
     **Layout & Visuals to Generate:**
     1.  **📊 Executive Summary**:

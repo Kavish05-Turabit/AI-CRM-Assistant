@@ -90,7 +90,7 @@ class GeminiAssistant:
     def __init__(self):
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
-            api_key=st.secrets["gemini_secret_3"]
+            api_key=st.secrets["gemini_secret_4"]
         ).bind_tools(self.llm_tools)
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
