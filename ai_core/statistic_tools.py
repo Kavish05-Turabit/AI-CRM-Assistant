@@ -59,3 +59,18 @@ def show_individual_analysis(
     )
     data = res.json()
     return f"This is the data for the requested query - {data}"
+
+
+@tool()
+def show_overall_analysis():
+    """
+    When the user asks to fetch overall, complete, current or just analysis without mentioning emp id or cust id, call this function.
+    Evaluate the data sent by the api ask Display it in visually compelling manner.
+    :return:
+    """
+    res = requests.get(
+        "http://127.0.0.1:8000/dashboard/",
+        headers=st.session_state.headers,
+    )
+    data = res.json()
+    return f"This is the data for the requested query - {data}"

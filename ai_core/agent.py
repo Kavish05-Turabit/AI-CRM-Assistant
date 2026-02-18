@@ -14,7 +14,7 @@ class GeminiAssistant:
         customer_tools.get_all_customers, ticket_tools.get_all_tickets, employee_tools.get_all_employees,
         customer_tools.search_customers, ticket_tools.search_ticket, employee_tools.search_employee,
         customer_tools.create_new_customer, ticket_tools.create_new_ticket, employee_tools.create_new_employee,
-        statistic_tools.show_individual_analysis
+        statistic_tools.show_individual_analysis, statistic_tools.show_overall_analysis
     ]
 
     tools_map = {
@@ -37,7 +37,8 @@ class GeminiAssistant:
         "update_employee": employee_tools.update_employee,
 
         # statistic tools
-        "show_individual_analysis": statistic_tools.show_individual_analysis
+        "show_individual_analysis": statistic_tools.show_individual_analysis,
+        "show_overall_analysis": statistic_tools.show_overall_analysis
     }
 
     MODEL_OPTIONS = {
@@ -92,6 +93,7 @@ class GeminiAssistant:
             model="gemini-2.5-flash-lite",
             api_key=st.secrets["gemini_secret_4"]
         ).bind_tools(self.llm_tools)
+        self.provider = "gemini"
         self.message_history: List[AnyMessage] = []
         self.message_history.append(SystemMessage(content=self.system_prompt))
 
@@ -105,15 +107,17 @@ class GeminiAssistant:
         """
         try:
             if provider == "Gemini":
+                self.provider = "gemini"
                 self.llm = ChatGoogleGenerativeAI(
                     model=model,
                     api_key=api_key
                 ).bind_tools(self.llm_tools)
             if provider == "Groq":
+                self.provider = "groq"
                 self.llm = ChatGroq(
                     model=model,
                     api_key=api_key,
-                    temperature=0.7
+                    temperature=0
                 ).bind_tools(self.llm_tools)
         except Exception as e:
             st.error("Model unsupported! Please select appropriate model")
@@ -125,13 +129,21 @@ class GeminiAssistant:
         :return: Response by the LLM for user query
         """
         self.message_history.append(HumanMessage(content=prompt))
+        stateless_memory = [
+            SystemMessage(content=self.system_prompt),
+            HumanMessage(content=prompt)
+        ]
         try:
-            ai_msg = self.llm.invoke(self.message_history)
+            if self.provider == "gemini":
+                ai_msg = self.llm.invoke(self.message_history)
+            else:
+                ai_msg = self.llm.invoke(stateless_memory)
         except Exception as e:
             st.error(f"Some Error occurred on API side. Please Change API model -  {e}")
-            return None
+            return "Some error occurred in LLM side! Please change model or try again later."
         self.message_history.append(ai_msg)
         while ai_msg.tool_calls:
+            tool_messages = []
             for tool_call in ai_msg.tool_calls:
                 name = tool_call["name"]
                 args = tool_call["args"]
@@ -142,13 +154,21 @@ class GeminiAssistant:
                     self.message_history.append(
                         ToolMessage(content=str(result), tool_call_id=tool_call["id"])
                     )
+                    tool_messages.append(
+                        ToolMessage(content=str(result), tool_call_id=tool_call["id"])
+                    )
             try:
-                ai_msg = self.llm.invoke(self.message_history)
+                if self.provider == "gemini":
+                    ai_msg = self.llm.invoke(self.message_history)
+                else:
+                    stateless_memory.append(ai_msg)
+                    stateless_memory.extend(tool_messages)
+                    ai_msg = self.llm.invoke(stateless_memory)
                 self.message_history.append(ai_msg)
                 print(ai_msg)
             except Exception as e:
                 st.error(f"API Error in loop: {e}")
-                break
+                return "Some error occurred in LLM side! Please change model or try again later."
         msg = helpers.get_clean_message(ai_msg)
         if not msg:
             msg = "Action completed successfully."
